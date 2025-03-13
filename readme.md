@@ -99,3 +99,10 @@ This project is licensed under the MIT License. Feel free to use and modify it.
 
 For any questions or feature requests, please open an issue or reach out!
 
+## About Pokkoa
+
+- Pokkoa website: [pokkoa.com](https://pokkoa.com)
+- Linkedin: [Pokkoa LinkedIn](https://www.linkedin.com/company/pokkoa)
+- Hugging Face: [Pokkoa on Hugging Face](https://huggingface.co/pokkoa)
+- ✉️: [contact@pokkoa.cc](contact@pokkoa.cc)
+
