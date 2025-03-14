@@ -5,6 +5,7 @@ import numpy as np
 import jieba
 import time
 import logging
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from config import DEFAULT_TEXT_DIR, DEFAULT_DB_PATH, LOG_FORMAT, LOG_DATE_FORMAT
@@ -160,6 +161,53 @@ class TextMatchingSystem:
         end_total = time.time()
         self.debug_print(f"Total processing time: {end_total - start_total:.2f} seconds", level='info')
         self.debug_print(f"Successfully processed and stored vectors for {len(texts)} documents", level='info')
+
+
+    def build_vectors_from_parquet(self, parquet_path):
+        self.debug_print(f"Building vectors from parquet file: {parquet_path}", level='info')
+        start_total = time.time()
+
+        df = pd.read_parquet(parquet_path)
+        if 'text' not in df.columns:
+            raise ValueError("Parquet file must contain a 'text' column")
+
+        if 'filename' not in df.columns:
+            self.debug_print("No 'filename' column found, generating filenames from row indices")
+            df['filename'] = [f"doc_{i}" for i in range(len(df))]
+
+        texts = dict(zip(df['filename'], df['text']))
+
+        self.debug_print(f"Loaded {len(texts)} records from parquet file")
+
+        processed_texts = {filename: self.preprocess_text(text) for filename, text in texts.items()}
+
+        self.vectorizer = TfidfVectorizer()
+        all_processed = list(processed_texts.values())
+        self.vectorizer.fit(all_processed)
+
+        vocab_size = len(self.vectorizer.vocabulary_)
+        self.debug_print(f"Vocabulary size: {vocab_size} terms")
+
+        self._store_vectorizer()
+
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        for filename, processed_text in processed_texts.items():
+            self.debug_print(f"inserting document_vectors: {filename}")
+            vector = self.vectorizer.transform([processed_text])
+            vector_blob = pickle.dumps(vector)
+            cursor.execute('''
+            INSERT OR REPLACE INTO document_vectors (filename, content, vector)
+            VALUES (?, ?, ?)
+            ''', (filename, texts[filename], vector_blob))
+
+        conn.commit()
+        conn.close()
+
+        end_total = time.time()
+        self.debug_print(f"Processed and stored vectors for {len(texts)} documents in {end_total - start_total:.2f} seconds", level='info')
+
 
     def _store_vectorizer(self):
         """Store the TF-IDF vectorizer in the database"""

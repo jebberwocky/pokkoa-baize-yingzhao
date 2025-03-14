@@ -5,6 +5,8 @@ Common configuration settings for the Text Matching System
 # Default file paths
 DEFAULT_TEXT_DIR = "./txt"
 DEFAULT_DB_PATH = "./text_vectors.db"
+DEFAULT_PARQUET_DB_PATH = "./text_vectors_parquet.db"
+DEFAULT_PARQUET_DIR = "./parquet"
 
 # Default server settings
 DEFAULT_HOST = "0.0.0.0"
