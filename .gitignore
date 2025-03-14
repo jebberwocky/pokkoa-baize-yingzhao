@@ -178,3 +178,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+/text_matching_pb2.py
+/text_matching_pb2_grpc.py

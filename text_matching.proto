@@ -1,0 +1,61 @@
+// text_matching.proto
+syntax = "proto3";
+
+package text_matching;
+
+service TextMatchingService {
+  // Health check
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+  
+  // Match text against the database
+  rpc MatchText (MatchTextRequest) returns (MatchTextResponse);
+  
+  // Get database statistics
+  rpc GetStats (StatsRequest) returns (StatsResponse);
+}
+
+// Health check messages
+message HealthCheckRequest {
+  // Empty request
+}
+
+message HealthCheckResponse {
+  string status = 1;
+}
+
+// Match text messages
+message MatchTextRequest {
+  string text = 1;
+  int32 count = 2;
+}
+
+message MatchResult {
+  string filename = 1;
+  float similarity = 2;
+  string content = 3;
+}
+
+message MatchTextResponse {
+  repeated MatchResult results = 1;
+  string query = 2;
+  int32 count = 3;
+  int32 requested_count = 4;
+  string error = 5;
+}
+
+// Stats messages
+message StatsRequest {
+  // Empty request
+}
+
+message StatsResponse {
+  int32 document_count = 1;
+  int64 total_content_size = 2;
+  float avg_content_size = 3;
+  int64 database_size = 4;
+  bool vectorizer_exists = 5;
+  int32 vocabulary_size = 6;
+  int64 vectorizer_size = 7;
+  repeated string filenames = 8;
+  string error = 9;
+}

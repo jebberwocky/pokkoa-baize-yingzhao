@@ -1,7 +1,6 @@
 import os
 import pickle
 import sqlite3
-import numpy as np
 import jieba
 import time
 import logging
