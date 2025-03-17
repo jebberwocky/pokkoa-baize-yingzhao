@@ -16,6 +16,7 @@ Please place information from ancient Chinese books into the `txt/` directory.
 - **Similarity Matching**: Computes cosine similarity between query input and document vectors.
 - **Interactive CLI**: Allows real-time querying and result display.
 - **Debug Mode**: Offers detailed logging for processing steps.
+- Support Http, gRPC, MCP(Model Context Protocol)
 
 ## Installation
 
