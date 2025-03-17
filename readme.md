@@ -6,7 +6,20 @@ The **Text Matching System** is a Python-based tool designed to process Chinese 
 
 ## Dataset
 
-Please place information from ancient Chinese books into the `txt/` directory.
+Ancient Chinese books txt files arelocated in the `txt/` directory.
+
+The txt directory contains:
+- 49 volumes of Yi Jing (易经) texts, including various commentaries and interpretations
+- 146 volumes of Shu Shu (术数) texts, including divination methods, fortune-telling, and geomancy
+- Various other ancient Chinese texts covering topics such as:
+  - Divination systems (六壬, 奇门遁甲)
+  - Geomancy (风水) and burial practices
+  - Physiognomy (相术) and fortune-telling
+  - Astronomical and calendrical systems
+  - Military strategies and tactics
+  - Philosophical interpretations of the Yi Jing
+
+These texts span multiple dynasties from pre-Qin period through the Qing dynasty, with authors including prominent figures like Zhu Xi (朱熹), Su Dongpo (苏东坡), Yang Xiong (杨雄), and many others.
 
 ## Features
 
