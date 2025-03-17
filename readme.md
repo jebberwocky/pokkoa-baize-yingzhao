@@ -1,6 +1,6 @@
 # Pokkoa Yingzhao
 
-The **Text Matching System** is a Python-based tool designed to process Chinese text documents, vectorize their content using TF-IDF, and find the most relevant texts matching user queries. It leverages SQLite for storing vectors and provides a simple command-line interface for interactive queries.
+The **Pokkoa Yingzhao Text Matching System** is a Python-based tool designed to process Chinese text documents, vectorize their content using TF-IDF, and find the most relevant texts matching user queries. It leverages SQLite for storing vectors and provides a simple command-line interface for interactive queries.
 
 ![Project Image](https://pukkoa.cc/xianghuo/out-pokkoa-img/shj-yingshao.jpg)
 
