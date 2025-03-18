@@ -10,7 +10,7 @@ def main():
                         help=f'Directory containing text files (default: {DEFAULT_TEXT_DIR})')
     parser.add_argument('--db', default=DEFAULT_DB_PATH,
                         help=f'Database file path (default: {DEFAULT_DB_PATH})')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode', default=True)
 
     args = parser.parse_args()
 
