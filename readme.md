@@ -31,6 +31,10 @@ These texts span multiple dynasties from pre-Qin period through the Qing dynasty
 - **Debug Mode**: Offers detailed logging for processing steps.
 - Support Http, gRPC, MCP(Model Context Protocol)
 
+## Stop Words
+put under `stopwords\stop_words.txt`
+stop_words from https://github.com/elephantnose/characters
+
 ## Installation
 
 Ensure you have Python installed (>= 3.8), then install the necessary dependencies:

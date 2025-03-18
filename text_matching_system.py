@@ -4,6 +4,7 @@ import sqlite3
 import jieba
 import time
 import logging
+import re
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -24,7 +25,8 @@ class TextMatchingSystem:
                 datefmt=LOG_DATE_FORMAT
             )
             self.logger = logging.getLogger('TextMatchingSystem')
-
+        #init stop words
+        self._load_stop_words()
         self._init_database()
         self.debug_print(f"Initialized TextMatchingSystem with database: {db_path}")
 
@@ -69,14 +71,75 @@ class TextMatchingSystem:
         self.debug_print("Database initialized successfully")
 
     def preprocess_text(self, text):
-        """Preprocess text with Chinese word segmentation"""
+        """Preprocess text with enhanced Chinese word segmentation and sentence shortening"""
         self.debug_print(f"Preprocessing text (length: {len(text)} chars)")
         start_time = time.time()
-        words = jieba.cut(text)
-        processed = ' '.join(words)
+
+        # Load stop words if not already loaded
+        if not hasattr(self, 'stop_words'):
+            self._load_stop_words()
+
+        # Clean the text - keep only Chinese characters and essential punctuation
+        text = re.sub(r'[^\u4e00-\u9fff。！？，、：；]', ' ', text)
+
+        # Split into sentences for better contextual processing
+        sentences = re.split(r'[。！？]', text)
+
+        # Process each sentence
+        processed_segments = []
+
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if len(sentence) < 5:  # Skip very short sentences
+                continue
+
+            # For longer sentences, split into sub-sentences by commas
+            if len(sentence) > 50:
+                sub_sentences = re.split(r'[，、：；]', sentence)
+                sub_sentences = [s.strip() for s in sub_sentences if len(s.strip()) >= 5]
+            else:
+                sub_sentences = [sentence]
+
+            for sub_sent in sub_sentences:
+                # Skip if too long even after splitting
+                if len(sub_sent) > 100:
+                    # Take only the first 80 characters
+                    sub_sent = sub_sent[:80]
+
+                # Segment with jieba
+                words = list(jieba.cut(sub_sent))
+
+                # Filter out stop words and single characters
+                filtered_words = [w for w in words if (len(w) > 1 or len(words) <= 3) and w not in self.stop_words]
+
+                # Limit the number of words to create shorter, more focused segments
+                if len(filtered_words) > 15:
+                    filtered_words = filtered_words[:15]
+
+                if filtered_words:
+                    processed_segments.append(' '.join(filtered_words))
+
+        processed_text = ' '.join(processed_segments)
+
         end_time = time.time()
         self.debug_print(f"Text preprocessing completed in {end_time - start_time:.2f} seconds")
-        return processed
+        self.debug_print(f"Original length: {len(text)}, Processed length: {len(processed_text)}")
+
+        return processed_text
+
+    def _load_stop_words(self, file_path='stopwords/stop_words.txt'):
+        """Load Chinese stop words from a text file"""
+        self.debug_print(f"Loading stop words from {file_path}")
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                self.stop_words = set(line.strip() for line in file if line.strip())
+            self.debug_print(f"Loaded {len(self.stop_words)} stop words")
+        except FileNotFoundError:
+            self.debug_print(f"Stop words file not found: {file_path}", level='warning')
+            # Fallback to a basic set of stop words
+            self.stop_words = {'的', '了', '和', '是', '就', '都', '而', '及', '与', '着', '或', '一个', '没有', '我们',
+                               '你们', '他们', '她们'}
+            self.debug_print(f"Using {len(self.stop_words)} default stop words")
 
     def build_vectors_from_directory(self, directory_path=DEFAULT_TEXT_DIR):
         """Process all text files in a directory and store their vectors"""
@@ -322,6 +385,10 @@ class TextMatchingSystem:
         result = cursor.fetchone()[0]
         stats['total_content_size'] = result if result else 0
 
+        # Add total content size in MB
+        stats['total_content_size_mb'] = stats['total_content_size'] / (1024 * 1024) if stats[
+            'total_content_size'] else 0
+
         # Get average content size
         if stats['document_count'] > 0:
             stats['avg_content_size'] = stats['total_content_size'] / stats['document_count']
@@ -333,6 +400,10 @@ class TextMatchingSystem:
             stats['database_size'] = os.path.getsize(self.db_path)
         except OSError:
             stats['database_size'] = 0
+
+        # Add total content size in MB
+        stats['database_size_mb'] = stats['database_size'] / (1024 * 1024) if stats[
+            'database_size'] else 0
 
         # Check if vectorizer exists
         cursor.execute('SELECT COUNT(*) FROM vectorizer')
